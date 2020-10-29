@@ -1,0 +1,70 @@
+/*Arduino*/
+/*------------------------------------------------------------*/
+int randomN;
+char id = 'T';
+int valor;
+void setup() 
+{
+  Serial.begin(9600);
+}
+
+void loop() 
+{
+  //Serial.print("Konnichiwa Sekai\r");
+  //Serial.flush();
+  valor = 20;
+  Serial.print(id);
+  Serial.print(valor);
+  /*randomN = random(100);
+  Serial.print(randomN);*/
+  Serial.print("\r");//Indica el final del Mensaje
+  delay(1000);
+}
+
+/*ESP8266*/
+/*------------------------------------------------------------*/
+#include "LiquidCrystal_I2C.h"
+#include "Wire.h"
+LiquidCrystal_I2C lcd(0x27, 20, 4); 
+char buff [50];
+volatile byte indx;
+char c = NULL;
+
+void leeSerial();
+
+void setup()
+{
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  indx = 0;
+}
+
+void loop() 
+{
+  leeSerial();
+}
+
+void leeSerial()
+{
+  if (Serial.available() > 0) 
+  {
+    c = Serial.read();//Le un caracter del serial
+    if (indx < sizeof buff) 
+    {
+      if (c == '\r') //Final del Mensaje
+      { 
+        lcd.clear();
+        lcd.print(buff);
+        delay(1000);
+        indx= 0; //Regresa la posicion a cero
+        //lcd.clear();
+      }
+      else
+      {
+        buff[indx] = c; //Guarda el dato en el buffer
+        indx++;
+      }
+    }//
+  }
